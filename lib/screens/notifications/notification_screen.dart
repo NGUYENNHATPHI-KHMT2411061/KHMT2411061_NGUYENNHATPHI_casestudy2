@@ -19,6 +19,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return FutureBuilder<List<AppNotification>>(
       future: _future,
       builder: (context, snapshot) {
@@ -52,20 +53,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
             Expanded(
               child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                 itemCount: notifications.length,
                 itemBuilder: (_, index) {
                   final item = notifications[index];
-                  return ListTile(
-                    tileColor: item.isRead ? null : Colors.indigo.withValues(alpha: .08),
-                    leading: Icon(item.isRead
-                        ? Icons.notifications_none
-                        : Icons.notifications_active),
-                    title: Text(item.title),
-                    subtitle: Text(item.message),
-                    onTap: () async {
-                      if (!item.isRead) await widget.service.markRead(item.id);
-                      _reload();
-                    },
+                  return Card(
+                    color: item.isRead
+                        ? Colors.white
+                        : colorScheme.primary.withValues(alpha: .14),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                      leading: CircleAvatar(
+                        backgroundColor: item.isRead
+                            ? const Color(0xFFF5F0E1)
+                            : colorScheme.primary,
+                        foregroundColor: item.isRead
+                            ? colorScheme.secondary
+                            : colorScheme.onPrimary,
+                        child: Icon(item.isRead
+                            ? Icons.notifications_none
+                            : Icons.notifications_active),
+                      ),
+                      title: Text(
+                        item.title,
+                        style: TextStyle(
+                          fontWeight:
+                              item.isRead ? FontWeight.w500 : FontWeight.w700,
+                        ),
+                      ),
+                      subtitle: Text(item.message),
+                      onTap: () async {
+                        if (!item.isRead) {
+                          await widget.service.markRead(item.id);
+                        }
+                        _reload();
+                      },
+                    ),
                   );
                 },
               ),
